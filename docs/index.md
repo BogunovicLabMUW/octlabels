@@ -1,12 +1,5 @@
 # octlabels
 
-![Lesion PNG of one B-scan](assets/example-lesions.png)
-
-A lesion file as stored, without any processing:
-[`examples/RETOUCH/TRAIN043/lesions/024.png`](https://github.com/BogunovicLabMUW/octlabels/tree/master/examples/RETOUCH/TRAIN043),
-the middle B-scan of RETOUCH case TRAIN043 (model output). Red: Cyst,
-green: SRF, blue: PED, yellow: SHRM, grey: HRF.
-
 octlabels defines file formats for annotations of OCT (optical coherence
 tomography) scans, and a Python library to read, write and process them.
 
@@ -105,6 +98,26 @@ itself is not included.
   pixel spacing, the laterality and `source: model`.
 - `lesions/`: Cyst, SRF, PED, SHRM, Pseudodrusen and ORT as main lesions, HRF
   as an overlay.
+
+<table markdown>
+<tr markdown>
+<td width="55%"><img src="assets/example-lesions.png" alt="Lesion PNG of one B-scan"></td>
+<td markdown="block">
+
+**`lesions/024.png`** (the middle B-scan) as stored, without any processing.
+Lesion PNGs open in any image viewer.
+
+| Colour | Lesion |
+|---|---|
+| red | Cyst |
+| green | SRF |
+| blue | PED |
+| yellow | SHRM |
+| grey | HRF |
+
+</td>
+</tr>
+</table>
 
 The examples are part of the repository, not of the installed package. From
 the repository root:
