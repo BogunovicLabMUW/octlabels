@@ -2,6 +2,13 @@
 
 # octlabels: File Formats and Library for OCT Labels
 
+![Lesion PNG of one B-scan](docs/assets/example-lesions.png)
+
+A lesion file as stored, without any processing:
+[`examples/RETOUCH/TRAIN043/lesions/024.png`](examples/RETOUCH/TRAIN043),
+the middle B-scan of RETOUCH case TRAIN043 (model output). Red: Cyst,
+green: SRF, blue: PED, yellow: SHRM, grey: HRF.
+
 octlabels defines file formats for annotations of OCT (optical coherence
 tomography) scans, and a Python library to read, write and process them.
 
@@ -126,6 +133,36 @@ bscan = octlabels.load_bscan("patient_01/lesions/", 42)  # LesionSet
 
 Passing `names` selects and orders the annotations; missing ones are zero
 (layers: value 0, confidence 0; lesions: empty masks).
+
+## Example data
+
+[`examples/RETOUCH/TRAIN043/`](examples/RETOUCH/TRAIN043) contains the
+annotations of one scan of the RETOUCH dataset (case TRAIN043, 49 B-scans of
+512 × 496 pixels), produced by a segmentation model. The scan itself is not
+included.
+
+- `layers/`: 12 boundaries (ILM … HL-S) with confidence; `info` holds the
+  pixel spacing, the laterality and `source: model`.
+- `lesions/`: Cyst, SRF, PED, SHRM, Pseudodrusen and ORT as main lesions, HRF
+  as an overlay.
+
+The examples are part of the repository, not of the installed package. From
+the repository root:
+
+```python
+import octlabels
+
+names, values, confidence = octlabels.load_layer_arrays("examples/RETOUCH/TRAIN043/layers")
+print(names)         # ['ILM', 'RNFL-GCL', ..., 'BM', 'HL-S']
+print(values.shape)  # (49, 12, 512)
+
+names, masks = octlabels.load_lesion_arrays("examples/RETOUCH/TRAIN043/lesions")
+print(names)         # ['Cyst', 'SRF', 'PED', 'SHRM', 'Pseudodrusen', 'ORT', 'HRF']
+print(masks.shape)   # (49, 7, 496, 512)
+
+bscan = octlabels.load_bscan("examples/RETOUCH/TRAIN043/layers", 24)
+print(bscan.info["laterality"], bscan.info["axial_resolution_um"])  # OS 3.872
+```
 
 ## Concepts
 

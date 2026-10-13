@@ -1,7 +1,8 @@
 """Runs the Python examples of the documentation, llms.txt and the Claude skill.
 
 All ```python blocks of a page run in order, in one namespace, in a folder that
-contains a small sample scan ``patient_01/``. A block preceded by a line
+contains a small sample scan ``patient_01/`` and the repository's ``examples/``.
+A block preceded by a line
 ``<!-- skip-test: reason -->`` is skipped.
 """
 
@@ -60,6 +61,7 @@ def test_examples_run(page, tmp_path, monkeypatch):
     if not examples:
         pytest.skip("no Python examples")
     _write_sample_scan(tmp_path / "patient_01")
+    (tmp_path / "examples").symlink_to(ROOT / "examples")
     monkeypatch.chdir(tmp_path)
     namespace: dict = {}
     for number, code in enumerate(examples, start=1):

@@ -23,6 +23,16 @@ patient_01/
 Instead of a folder, a volume can also be one zip file of the same files
 (`layers.zip`).
 
+The repository contains an example in this layout,
+[`examples/RETOUCH/TRAIN043`](https://github.com/BogunovicLabMUW/octlabels/tree/master/examples/RETOUCH/TRAIN043)
+(model output for RETOUCH case TRAIN043, without the scan; see
+[Example data](index.md#example-data)). A lesion PNG
+opens in any image viewer; this is `lesions/024.png` as stored:
+
+![Lesion PNG of one B-scan](assets/example-lesions.png)
+
+Red: Cyst, green: SRF, blue: PED, yellow: SHRM, grey: HRF.
+
 ## Arrays in one call
 
 Most code needs the annotations as NumPy arrays. One function per kind loads a
