@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use octlabels in your research, please cite it as below."
+title: "octlabels: File Formats and Library for OCT Labels"
+type: software
+authors:
+  - family-names: Fazekas
+    given-names: Botond
+license: MIT
+version: 0.1.0
+repository-code: "https://github.com/BogunovicLabMUW/octlabels"
+url: "https://bogunoviclabmuw.github.io/octlabels/"
+keywords:
+  - optical coherence tomography
+  - retinal layer segmentation
+  - lesion segmentation
+  - annotation file format

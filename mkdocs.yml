@@ -1,0 +1,78 @@
+site_name: octlabels
+site_description: File formats and a Python library for OCT labels.
+site_url: https://bogunoviclabmuw.github.io/octlabels/
+repo_url: https://github.com/BogunovicLabMUW/octlabels
+repo_name: octlabels
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon.png
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - File formats:
+      - Layers: formats/layers.md
+      - Lesions: formats/lesions.md
+      - Volumes: formats/volumes.md
+  - User guide:
+      - Loading and saving: guide/loading-and-saving.md
+      - Arrays and training: guide/arrays.md
+      - Metadata (info): guide/metadata.md
+      - Custom properties: guide/custom-properties.md
+      - Regions: guide/regions.md
+      - Lesions: guide/lesions.md
+      - Transforms and segmentation maps: guide/transforms.md
+      - MATLAB import: guide/matlab.md
+  - API reference:
+      - octlabels: reference/octlabels.md
+      - Layers: reference/layers.md
+      - Lesions: reference/lesions.md
+      - Transforms and rasterization: reference/transforms.md
+      - File format modules: reference/formats.md
+      - MATLAB import: reference/matlab.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            members_order: source
+            filters: ["!^_"]
+            inherited_members: true
+            merge_init_into_class: true
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            scoped_crossrefs: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_source: false
+            heading_level: 2

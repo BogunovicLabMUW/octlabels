@@ -1,0 +1,92 @@
+# octlabels
+
+> Python library and file formats for annotations of OCT (optical coherence tomography) scans: retinal layer boundaries and per-A-scan regions in YAML files (`NNN.yml`), lesion masks in 8-bit PNG files (`NNN.png`), one file per B-scan. A volume is a folder or a `.zip` file of these files. Needs numpy, pyyaml and pillow; see Getting started for installation.
+
+Shapes: layer arrays are [layers, width] for one B-scan and [B-scans, layers, width] for a volume; lesion masks are [lesions, height, width] and [B-scans, lesions, height, width]. `width` is the number of A-scans, `height` the pixels per A-scan.
+
+## Most common calls
+
+```python
+import octlabels
+
+# Arrays from a B-scan file or a volume (folder or .zip); names select and order
+# the annotations, missing ones are zero.
+layer_names, values, confidence = octlabels.load_layer_arrays(
+    "patient_01/layers/", ["ILM", "RPE", "BM"]
+)
+lesion_names, masks = octlabels.load_lesion_arrays(
+    "patient_01/lesions/", ["IRF", "SRF", "HRF"]
+)
+
+# Arrays to files: 2D/3D values (B-scan file / volume), 3D/4D masks.
+octlabels.save_layer_arrays(
+    "out/layers/", values, confidence, layer_names, info={"height": 128}
+)
+octlabels.save_lesion_arrays(
+    "out/lesions/", masks, lesion_names, main_lesion_names=["IRF", "SRF"]
+)
+
+# Objects: the type follows the path (.yml -> LayerSet, .png -> LesionSet,
+# folder/.zip -> LayerVolume or LesionVolume).
+volume = octlabels.load("patient_01/layers/")
+bscan = octlabels.load_bscan("patient_01/layers/", 2)   # B-scan index 2, reads one file
+```
+
+## Objects
+
+- `LayerSet` (one B-scan): `info` dict, `layers` and `regions` (dict-like, by name). `bscan["ILM"]` is a `Layer` with `.values` (float32 heights), `.confidence` (uint8, 0 = invalid), `.uncertainty` (uint16 or None), `.properties` (all per-A-scan arrays).
+- `AScanRegion`: like a layer, but `.values` is 0/1 presence of a biomarker per A-scan; confidence optional.
+- `LesionSet` (one B-scan): `info`, `lesions` (dict-like). `bscan["SRF"].mask` is [height, width] uint8 0/1; `.main` is True for mutually exclusive (main) lesions, False for overlays.
+- `LayerVolume`, `LesionVolume`: lists of sets (`volume[i]`, iteration, `len`).
+- Shared methods of sets and volumes: `load(path)`, `save(path)`, `to_array(names=None)`, `from_array(arrays, ..., names, info)`, `ensure(names)` (exactly these annotations, missing ones zero), `subset(names)`, `copy()`; volumes also `load_bscan(path, idx)`.
+
+```python
+import numpy as np
+from octlabels import LayerVolume, LesionVolume, uncertainty_from_std
+
+layers = LayerVolume.load("patient_01/layers/")
+values, confidence = layers.to_array(["ILM", "RPE", "BM"])      # [B, 3, width]
+lesions = LesionVolume.load("patient_01/lesions/")
+masks = lesions.to_array(["IRF", "SRF", "HRF"])                  # [B, 3, height, width]
+
+bscan = layers[0]
+bscan["ILM"].set_property("snr", np.zeros(bscan.width))         # custom per-A-scan property
+bscan.save("out/000.yml.xz")                                     # compression from the name
+layers.save("out/layers.zip", compress="lzma")                   # volume as one zip file
+
+prediction = LayerVolume.from_array(
+    values, confidence=confidence, names=["ILM", "RPE", "BM"],
+    info={"height": 128, "source": "model"},
+    uncertainty=uncertainty_from_std(np.full(values.shape, 2.0)),  # std in pixels -> 0..999
+)
+```
+
+## Rules and pitfalls
+
+- Every property of a layer or region has exactly one entry per A-scan; wrong lengths raise `ValueError`.
+- Region values must be 0 or 1; main lesions must not overlap (saving raises).
+- Without `names`, `to_array` / `load_*_arrays` on a volume require the same annotations in every B-scan; pass `names` for mixed data.
+- `load_bscan(path, idx)` takes the B-scan index (number in the file name), `volume[i]` the position.
+- `info` accepts any keys; documented keys (`width`, `height`, `idx`, `axial_resolution_um`, `lateral_resolution_um`, `bscan_spacing_um`, `laterality` "OD"/"OS", `subject_id`, `scan_id`, `device`, `source` "manual"/"model"/"corrected", `grader`, `model`, `format_version`) are checked by `LayerSet.validate()`. Never store direct patient identifiers.
+- Lesion files store only masks and names, not `info`.
+- Transforms (`octlabels.layers.transforms`: flip, resize_horizontal, resize_vertical, spatial_pad_end, rotate, shear, scale, affine) return copies and keep all arrays aligned.
+- Low-level lesion PNG functions with separate main/overlay arrays: `octlabels.lesions.packing.save_lesions/load_lesions/save_lesion_dicts/load_lesion_dicts`.
+
+## Docs
+
+- [Getting started](getting-started/): installation, folder layout, arrays and objects
+- [Layer file format](formats/layers/): YAML structure, rows, row styles
+- [Lesion file format](formats/lesions/): pixel bits, metadata, palette
+- [Volumes](formats/volumes/): folders, zip files, B-scan indices
+- [Arrays and training](guide/arrays/): ensure, model output, PyTorch dataset
+- [Metadata](guide/metadata/): built-in info keys, validation, transforms
+- [Custom properties](guide/custom-properties/): adding, reading, interpolation
+
+## Optional
+
+- [Loading and saving](guide/loading-and-saving/)
+- [Regions](guide/regions/)
+- [Lesions](guide/lesions/): main lesions, overlays, bit split, packing functions
+- [Transforms and segmentation maps](guide/transforms/)
+- [MATLAB import](guide/matlab/): Duke datasets (`pip install "octlabels[matlab]"`)
+- [API reference](reference/octlabels/)
